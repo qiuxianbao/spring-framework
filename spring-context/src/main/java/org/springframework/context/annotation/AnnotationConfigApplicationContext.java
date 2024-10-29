@@ -53,6 +53,7 @@ import org.springframework.util.Assert;
  * @see ClassPathBeanDefinitionScanner
  * @see org.springframework.context.support.GenericXmlApplicationContext
  */
+// TODO-QIU: 2024年10月21日, 0021
 public class AnnotationConfigApplicationContext extends GenericApplicationContext implements AnnotationConfigRegistry {
 
 	private final AnnotatedBeanDefinitionReader reader;
@@ -76,8 +77,11 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * @param beanFactory the DefaultListableBeanFactory instance to use for this context
 	 */
 	public AnnotationConfigApplicationContext(DefaultListableBeanFactory beanFactory) {
+		//
 		super(beanFactory);
+		// 注解读取
 		this.reader = new AnnotatedBeanDefinitionReader(this);
+		// 包扫描
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
 

@@ -444,6 +444,13 @@ public class ResolvableType implements Serializable {
 	 * @see #getSuperType()
 	 * @see #getInterfaces()
 	 */
+	/**
+	 * 这是一个递归
+	 * 递归接口和父类
+	 *
+	 * @param type
+	 * @return
+	 */
 	public ResolvableType as(Class<?> type) {
 		if (this == NONE) {
 			return NONE;
@@ -452,12 +459,16 @@ public class ResolvableType implements Serializable {
 		if (resolved == null || resolved == type) {
 			return this;
 		}
+
+		// 优先接口
 		for (ResolvableType interfaceType : getInterfaces()) {
 			ResolvableType interfaceAsType = interfaceType.as(type);
 			if (interfaceAsType != NONE) {
 				return interfaceAsType;
 			}
 		}
+
+		// 其次父类
 		return getSuperType().as(type);
 	}
 
@@ -473,6 +484,7 @@ public class ResolvableType implements Serializable {
 			return NONE;
 		}
 		try {
+			// 获取当前class的父类
 			Type superclass = resolved.getGenericSuperclass();
 			if (superclass == null) {
 				return NONE;
@@ -504,6 +516,7 @@ public class ResolvableType implements Serializable {
 		}
 		ResolvableType[] interfaces = this.interfaces;
 		if (interfaces == null) {
+			// 获取当前class所有实现的接口
 			Type[] genericIfcs = resolved.getGenericInterfaces();
 			interfaces = new ResolvableType[genericIfcs.length];
 			for (int i = 0; i < genericIfcs.length; i++) {

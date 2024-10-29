@@ -110,6 +110,10 @@ import org.springframework.util.ReflectionUtils;
  * @see #onStartup(Set, ServletContext)
  * @see WebApplicationInitializer
  */
+
+/**
+ *  resources/META-INF/services/ServletContainerInitializer
+ */
 @HandlesTypes(WebApplicationInitializer.class)
 public class SpringServletContainerInitializer implements ServletContainerInitializer {
 

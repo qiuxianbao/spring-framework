@@ -68,21 +68,39 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.beans.factory.DisposableBean
  * @see org.springframework.beans.factory.config.ConfigurableBeanFactory
  */
+
+/**
+ * 三级缓存
+ */
 public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements SingletonBeanRegistry {
 
 	/** Maximum number of suppressed exceptions to preserve. */
 	private static final int SUPPRESSED_EXCEPTIONS_LIMIT = 100;
 
 
+	/**
+	 * 一级缓存：存储的是所有创建好的单例bean，维护的是bean name与bean 实例的关系
+	 */
 	/** Cache of singleton objects: bean name to bean instance. */
 	private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
 
+	/**
+	 * 二级缓存：完成实例化，但是未进行属性注入以及初始化的对象
+	 * 是为了检测循环依赖，当一个单例的bean放在里面之后，那么当bean在在创建的过程中，就可以通过getBean方法获取到
+	 */
 	/** Cache of singleton factories: bean name to ObjectFactory. */
 	private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
 
+	/**
+	 * 三级缓存：提前暴露的一个单例工厂，二级缓存中存储的就是这个工厂中产生的对象
+	 * 维护的是bean name与创建bean的工厂(ObjectFactory)的关系
+	 */
 	/** Cache of early singleton objects: bean name to bean instance. */
 	private final Map<String, Object> earlySingletonObjects = new ConcurrentHashMap<>(16);
 
+	/**
+	 * 用来保存当前所有已注册的bean
+	 */
 	/** Set of registered singletons, containing the bean names in registration order. */
 	private final Set<String> registeredSingletons = new LinkedHashSet<>(256);
 

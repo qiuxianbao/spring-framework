@@ -117,6 +117,10 @@ import org.springframework.lang.Nullable;
  * @see DisposableBean#destroy
  * @see org.springframework.beans.factory.support.RootBeanDefinition#getDestroyMethodName
  */
+
+/**
+ * 是一个IOC容器，getBean()可以获取bean示例
+ */
 public interface BeanFactory {
 
 	/**

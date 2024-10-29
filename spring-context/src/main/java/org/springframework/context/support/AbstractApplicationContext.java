@@ -555,12 +555,16 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		synchronized (this.startupShutdownMonitor) {
 			StartupStep contextRefresh = this.applicationStartup.start("spring.context.refresh");
 
+			// 刷新预处理
 			// Prepare this context for refreshing.
 			prepareRefresh();
 
+			// 获取BeanFactory（beanFactory在AnnotationConfigApplicationContext（注解方式）的构造方法中会初始化，即DefaultListableBeanFactory）
 			// Tell the subclass to refresh the internal bean factory.
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
+
+			// 预处理BeanFactory，向容器中添加一些组件，比如后置处理器
 			// Prepare the bean factory for use in this context.
 			prepareBeanFactory(beanFactory);
 
@@ -569,8 +573,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				postProcessBeanFactory(beanFactory);
 
 				StartupStep beanPostProcess = this.applicationStartup.start("spring.context.beans.post-process");
+
+				// 执行【工厂】后置处理器
 				// Invoke factory processors registered as beans in the context.
 				invokeBeanFactoryPostProcessors(beanFactory);
+
+				// 向容器中注册bean后置处理器【BeanPostProcessors】
 				// Register bean processors that intercept bean creation.
 				registerBeanPostProcessors(beanFactory);
 				beanPostProcess.end();
@@ -581,15 +589,19 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// Initialize event multicaster for this context.
 				initApplicationEventMulticaster();
 
+				// TODO-QIU: 2024年10月21日, 0021 启动Tomcat
 				// Initialize other special beans in specific context subclasses.
 				onRefresh();
 
+				// 注册监听器
 				// Check for listener beans and register them.
 				registerListeners();
 
+				// bean工厂的初始化以及所有单实例的bean的初始化
 				// Instantiate all remaining (non-lazy-init) singletons.
 				finishBeanFactoryInitialization(beanFactory);
 
+				// 发布容器刷新完成事件
 				// Last step: publish corresponding event.
 				finishRefresh();
 			}
@@ -711,6 +723,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		beanFactory.registerResolvableDependency(ApplicationContext.class, this);
 
 		// Register early post-processor for detecting inner beans as ApplicationListeners.
+		// TODO-QIU: 2024年10月28日, 0028
 		beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(this));
 
 		// Detect a LoadTimeWeaver and prepare for weaving, if found.
@@ -816,6 +829,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	protected void initApplicationEventMulticaster() {
 		ConfigurableListableBeanFactory beanFactory = getBeanFactory();
 		if (beanFactory.containsLocalBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME)) {
+
+			// TODO-QIU: 2024年10月18日, 0018 看下怎么处理的
 			this.applicationEventMulticaster =
 					beanFactory.getBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, ApplicationEventMulticaster.class);
 			if (logger.isTraceEnabled()) {
@@ -1168,6 +1183,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Override
 	public Object getBean(String name) throws BeansException {
 		assertBeanFactoryActive();
+		// DefaultListableBeanFactory
 		return getBeanFactory().getBean(name);
 	}
 

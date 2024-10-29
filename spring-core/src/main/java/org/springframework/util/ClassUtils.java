@@ -196,6 +196,7 @@ public abstract class ClassUtils {
 	public static ClassLoader getDefaultClassLoader() {
 		ClassLoader cl = null;
 		try {
+			// Launcher$AppClassLoader
 			cl = Thread.currentThread().getContextClassLoader();
 		}
 		catch (Throwable ex) {
@@ -286,6 +287,7 @@ public abstract class ClassUtils {
 
 		ClassLoader clToUse = classLoader;
 		if (clToUse == null) {
+			// 获取默认的类加载器
 			clToUse = getDefaultClassLoader();
 		}
 		try {

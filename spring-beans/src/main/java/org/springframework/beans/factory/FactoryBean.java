@@ -62,6 +62,41 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.aop.framework.ProxyFactoryBean
  * @see org.springframework.jndi.JndiObjectFactoryBean
  */
+
+/**
+ * 是Spring提供给我们从context中去获取我们手动创建bean的一种方式。
+ *
+ * 示例：
+ *
+ * @Configuration
+ * @ComponentScan(basePackages = {"cn.thinkinjava.mybatis"})
+ * public class AppConfig {
+ * }
+ *
+ * public class User {
+ * }
+ *
+ * public class UserMapperFactoryBean implements FactoryBean {
+ *
+ *     @Override
+ *     public Object getObject() throws Exception {
+ *         return new User();
+ *     }
+ *
+ *     @Override
+ *     public Class<?> getObjectType() {
+ *         return User.class;
+ *     }
+ * }
+ *
+ * AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+ * // cn.thinkinjava.mybatis.UserMapperFactoryBean@279ad2e3
+ * System.out.println(context.getBean("&userMapperFactoryBean"));
+ * // cn.thinkinjava.mybatis.User@58134517
+ * System.out.println(context.getBean("userMapperFactoryBean"));
+ *
+ * @param <T>
+ */
 public interface FactoryBean<T> {
 
 	/**

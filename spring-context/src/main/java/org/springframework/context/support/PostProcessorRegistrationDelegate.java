@@ -56,6 +56,16 @@ final class PostProcessorRegistrationDelegate {
 	}
 
 
+	/**
+	 * BeanDefinitionRegistryPostProcessor#postProcessBeanDefinitionRegistry
+	 * BeanDefinitionRegistryPostProcessor#postProcessBeanFactory
+	 *
+	 * BeanFactoryPostProcessor#postProcessBeanFactory
+	 *
+	 *
+	 * @param beanFactory
+	 * @param beanFactoryPostProcessors
+	 */
 	public static void invokeBeanFactoryPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
 
