@@ -129,6 +129,9 @@ public final class SpringFactoriesLoader {
 			classLoaderToUse = SpringFactoriesLoader.class.getClassLoader();
 		}
 		String factoryTypeName = factoryType.getName();
+		// 缓存cache，key 是 classLoader，结果是 Map<String, List<String>>
+		// result 的 key 是 factoryTypeName，value 是 List<String>
+		// 默认值给空集合
 		return loadSpringFactories(classLoaderToUse).getOrDefault(factoryTypeName, Collections.emptyList());
 	}
 
@@ -140,6 +143,28 @@ public final class SpringFactoriesLoader {
 
 		result = new HashMap<>();
 		try {
+			/**
+			 * 类加载器
+			 * Custom ClassLoader：自定义类加载器，用户可以根据需求自定义类加载器，以实现特定的类加载逻辑。
+			 * Application ClassLoader：应用类加载器，也称为系统类加载器，负责加载应用程序类路径（CLASSPATH）上的类。
+			 * Extension ClassLoader：扩展类加载器，负责加载 Java 的扩展类库（如 jre/lib/ext 目录下的 JAR 包）。
+			 * Bootstrap ClassLoader：启动类加载器，负责加载 Java 核心类库（如 rt.jar），是用原生代码实现的
+			 *
+			 * urls = 2
+			 * classLoader.parent.parent = null
+			 * classLoader.parent = sun.misc.Launcher$ExtClassLoader
+			 * classLoader = sun.misc.Launcher$AppClassLoader
+			 *
+			 *  //10
+			 *  file:/C:/gradle/spring-boot/spring-boot-project/spring-boot-autoconfigure/build/libs/spring-boot-autoconfigure-2.5.16-SNAPSHOT.jar!/META-INF/spring.factories
+			 *
+			 *  // 8
+			 *  file:/C:/gradle/spring-boot/spring-boot-project/spring-boot/build/libs/spring-boot-2.5.16-SNAPSHOT.jar!/META-INF/spring.factories
+			 *
+			 *  // 1
+			 *  file:/C:/Users/admin/.gradle/caches/modules-2/files-2.1/org.springframework/spring-beans/5.3.39/87770ce736cbd777c07866cbc8a06b879765e3c8/spring-beans-5.3.39.jar!/META-INF/spring.factories
+			 *
+			 */
 			Enumeration<URL> urls = classLoader.getResources(FACTORIES_RESOURCE_LOCATION);
 			while (urls.hasMoreElements()) {
 				URL url = urls.nextElement();
@@ -150,6 +175,7 @@ public final class SpringFactoriesLoader {
 					String[] factoryImplementationNames =
 							StringUtils.commaDelimitedListToStringArray((String) entry.getValue());
 					for (String factoryImplementationName : factoryImplementationNames) {
+						// 技巧：如果map中 key不在 map中，则创建一个新list
 						result.computeIfAbsent(factoryTypeName, key -> new ArrayList<>())
 								.add(factoryImplementationName.trim());
 					}
