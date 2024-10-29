@@ -24,7 +24,7 @@ ext {
 
 //编译groovy代码时采用 UTF-8
 tasks.withType(GroovyCompile) {
-	groovyOptions.encoding = "MacRoman"
+	groovyOptions.encoding = "UTF-8"
 }
 
 //编译JAVA文件时采用UTF-8
