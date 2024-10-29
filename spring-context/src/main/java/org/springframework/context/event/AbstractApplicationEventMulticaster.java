@@ -189,6 +189,7 @@ public abstract class AbstractApplicationEventMulticaster
 
 		Object source = event.getSource();
 		Class<?> sourceType = (source != null ? source.getClass() : null);
+		// ListenerCacheKey [eventType = org.springframework.boot.context.event.ApplicationStartingEvent, sourceType = class org.springframework.boot.SpringApplication]
 		ListenerCacheKey cacheKey = new ListenerCacheKey(eventType, sourceType);
 
 		// Potential new retriever to populate
@@ -202,6 +203,7 @@ public abstract class AbstractApplicationEventMulticaster
 					(ClassUtils.isCacheSafe(event.getClass(), this.beanClassLoader) &&
 							(sourceType == null || ClassUtils.isCacheSafe(sourceType, this.beanClassLoader)))) {
 				newRetriever = new CachedListenerRetriever();
+				// 如果不存在，则放入，返回值是null
 				existingRetriever = this.retrieverCache.putIfAbsent(cacheKey, newRetriever);
 				if (existingRetriever != null) {
 					newRetriever = null;  // no need to populate it in retrieveApplicationListeners
@@ -238,6 +240,10 @@ public abstract class AbstractApplicationEventMulticaster
 		Set<ApplicationListener<?>> listeners;
 		Set<String> listenerBeans;
 		synchronized (this.defaultRetriever) {
+
+			/**
+			 * @see org.springframework.boot.context.event.EventPublishingRunListener#EventPublishingRunListener
+			 */
 			listeners = new LinkedHashSet<>(this.defaultRetriever.applicationListeners);
 			listenerBeans = new LinkedHashSet<>(this.defaultRetriever.applicationListenerBeans);
 		}
@@ -245,10 +251,17 @@ public abstract class AbstractApplicationEventMulticaster
 		// Add programmatically registered listeners, including ones coming
 		// from ApplicationListenerDetector (singleton beans and inner beans).
 		for (ApplicationListener<?> listener : listeners) {
+			// 过滤出监听器是否支持事件
 			if (supportsEvent(listener, eventType, sourceType)) {
 				if (retriever != null) {
 					filteredListeners.add(listener);
 				}
+
+				/**
+				 * @see org.springframework.boot.autoconfigure.BackgroundPreinitializer
+				 * @see org.springframework.boot.context.logging.LoggingApplicationListener,\
+				 * @see org.springframework.boot.context.config.DelegatingApplicationListener,\
+				 */
 				allListeners.add(listener);
 			}
 		}
@@ -461,6 +474,7 @@ public abstract class AbstractApplicationEventMulticaster
 					applicationListeners.size() + applicationListenerBeans.size());
 			allListeners.addAll(applicationListeners);
 			if (!applicationListenerBeans.isEmpty()) {
+				// 另外一种方式获取Listener
 				BeanFactory beanFactory = getBeanFactory();
 				for (String listenerBeanName : applicationListenerBeans) {
 					try {

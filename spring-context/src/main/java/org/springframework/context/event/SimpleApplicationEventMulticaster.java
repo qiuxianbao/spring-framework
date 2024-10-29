@@ -135,7 +135,9 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 
 	@Override
 	public void multicastEvent(final ApplicationEvent event, @Nullable ResolvableType eventType) {
+		// ApplicationStartingEvent
 		ResolvableType type = (eventType != null ? eventType : resolveDefaultEventType(event));
+		// null
 		Executor executor = getTaskExecutor();
 		for (ApplicationListener<?> listener : getApplicationListeners(event, type)) {
 			if (executor != null) {
@@ -147,6 +149,12 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 		}
 	}
 
+	/**
+	 * 如果 instance 是 ResolvableTypeProvider 类型，返回的是实现类对应的 ResolvableType
+	 * 否则，构造一个 ResolvableType，resolved = type = instance.getClass()
+	 * @param event
+	 * @return
+	 */
 	private ResolvableType resolveDefaultEventType(ApplicationEvent event) {
 		return ResolvableType.forInstance(event);
 	}
