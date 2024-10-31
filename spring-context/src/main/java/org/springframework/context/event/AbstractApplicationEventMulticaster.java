@@ -16,15 +16,6 @@
 
 package org.springframework.context.event;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
-
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.BeanFactory;
@@ -40,6 +31,10 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 /**
  * Abstract implementation of the {@link ApplicationEventMulticaster} interface,
@@ -242,6 +237,7 @@ public abstract class AbstractApplicationEventMulticaster
 		synchronized (this.defaultRetriever) {
 
 			/**
+			 * 初始化8个
 			 * @see org.springframework.boot.context.event.EventPublishingRunListener#EventPublishingRunListener
 			 */
 			listeners = new LinkedHashSet<>(this.defaultRetriever.applicationListeners);
@@ -251,16 +247,26 @@ public abstract class AbstractApplicationEventMulticaster
 		// Add programmatically registered listeners, including ones coming
 		// from ApplicationListenerDetector (singleton beans and inner beans).
 		for (ApplicationListener<?> listener : listeners) {
-			// 过滤出监听器是否支持事件
+			// 过滤出监听器订阅事件
 			if (supportsEvent(listener, eventType, sourceType)) {
 				if (retriever != null) {
 					filteredListeners.add(listener);
 				}
 
 				/**
-				 * @see org.springframework.boot.autoconfigure.BackgroundPreinitializer
-				 * @see org.springframework.boot.context.logging.LoggingApplicationListener,\
-				 * @see org.springframework.boot.context.config.DelegatingApplicationListener,\
+				 * @see org.springframework.context.ApplicationListener=\
+				 * @see org.springframework.boot.env.EnvironmentPostProcessorApplicationListener implements SmartApplicationListener，ApplicationEvent	× 没有订阅
+				 * @see org.springframework.boot.context.config.AnsiOutputApplicationListener,\  ApplicationEnvironmentPreparedEvent					× 不是ApplicationStartingEvent的父类
+				 * @see org.springframework.boot.context.logging.LoggingApplicationListener, implements GenericApplicationListener	ApplicationEvent	√
+				 * ----------------------------
+				 * #spring-boot-autoconfigure
+				 * @see org.springframework.boot.autoconfigure.BackgroundPreinitializer  SpringApplicationEvent		√
+				 * ----------------------------
+				 * @see org.springframework.boot.context.config.DelegatingApplicationListener,\ ApplicationEvent	√
+				 * @see org.springframework.boot.builder.ParentContextCloserApplicationListener,\ ParentContextAvailableEvent		× 不是ApplicationStartingEvent的父类
+				 *
+				 * @see org.springframework.boot.ClearCachesApplicationListener,\  ContextRefreshedEvent 							× 不是ApplicationStartingEvent的父类
+				 * @see org.springframework.boot.context.FileEncodingApplicationListener,\ ApplicationEnvironmentPreparedEvent 		× 不是ApplicationStartingEvent的父类
 				 */
 				allListeners.add(listener);
 			}
@@ -386,6 +392,8 @@ public abstract class AbstractApplicationEventMulticaster
 	protected boolean supportsEvent(
 			ApplicationListener<?> listener, ResolvableType eventType, @Nullable Class<?> sourceType) {
 
+		// 如果listener 实现了 GenericApplicationListener，则调用 listener自身的supportsEventType方法，如果自身没有supportsSourceType，则调用接口中的default方法
+		// 其他的通过适配器处理
 		GenericApplicationListener smartListener = (listener instanceof GenericApplicationListener ?
 				(GenericApplicationListener) listener : new GenericApplicationListenerAdapter(listener));
 		return (smartListener.supportsEventType(eventType) && smartListener.supportsSourceType(sourceType));

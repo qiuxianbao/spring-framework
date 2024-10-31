@@ -97,23 +97,27 @@ public class ResolvableType implements Serializable {
 
 	/**
 	 * The underlying Java type being managed.
+	 * JDK原始类型
 	 */
 	private final Type type;
 
 	/**
 	 * Optional provider for the type.
+	 * 对原生类型Type进行封装
 	 */
 	@Nullable
 	private final TypeProvider typeProvider;
 
 	/**
 	 * The {@code VariableResolver} to use or {@code null} if no resolver is available.
+	 * 变量解析
 	 */
 	@Nullable
 	private final VariableResolver variableResolver;
 
 	/**
 	 * The component type for an array or {@code null} if the type should be deduced.
+	 * 数组
 	 */
 	@Nullable
 	private final ResolvableType componentType;
@@ -121,15 +125,27 @@ public class ResolvableType implements Serializable {
 	@Nullable
 	private final Integer hash;
 
+	/**
+	 * 缓存解析后的 Class 类型
+	 */
 	@Nullable
 	private Class<?> resolved;
 
+	/**
+	 * 父类
+	 */
 	@Nullable
 	private volatile ResolvableType superType;
 
+	/**
+	 * 接口
+	 */
 	@Nullable
 	private volatile ResolvableType[] interfaces;
 
+	/**
+	 * 泛型
+	 */
 	@Nullable
 	private volatile ResolvableType[] generics;
 
@@ -841,6 +857,10 @@ public class ResolvableType implements Serializable {
 		return (this.resolved != null ? this.resolved : fallback);
 	}
 
+	/**
+	 * 构造方法调用此处，进行解析
+	 * @return
+	 */
 	@Nullable
 	private Class<?> resolveClass() {
 		if (this.type == EmptyType.INSTANCE) {
@@ -849,10 +869,14 @@ public class ResolvableType implements Serializable {
 		if (this.type instanceof Class) {
 			return (Class<?>) this.type;
 		}
+
+		// 泛型数组
 		if (this.type instanceof GenericArrayType) {
 			Class<?> resolvedComponent = getComponentType().resolve();
 			return (resolvedComponent != null ? Array.newInstance(resolvedComponent, 0).getClass() : null);
 		}
+
+		// 其他
 		return resolveType().resolve();
 	}
 
@@ -1157,6 +1181,7 @@ public class ResolvableType implements Serializable {
 	 */
 	public static ResolvableType forField(Field field) {
 		Assert.notNull(field, "Field must not be null");
+		// 构建相应的provider，进行解析
 		return forType(null, new FieldTypeProvider(field), null);
 	}
 
@@ -1437,6 +1462,8 @@ public class ResolvableType implements Serializable {
 	}
 
 	/**
+	 * 解析泛型
+	 *
 	 * Return a {@code ResolvableType} for the specified {@link Type} backed by a given
 	 * {@link VariableResolver}.
 	 * @param type the source type or {@code null}
@@ -1448,6 +1475,7 @@ public class ResolvableType implements Serializable {
 			@Nullable Type type, @Nullable TypeProvider typeProvider, @Nullable VariableResolver variableResolver) {
 
 		if (type == null && typeProvider != null) {
+			// 代理执行Provider，返回 type
 			type = SerializableTypeWrapper.forTypeProvider(typeProvider);
 		}
 		if (type == null) {
@@ -1463,10 +1491,12 @@ public class ResolvableType implements Serializable {
 		// Purge empty entries on access since we don't have a clean-up thread or the like.
 		cache.purgeUnreferencedEntries();
 
+		// 这个构造方法不会进行 resolveClass() 操作
 		// Check the cache - we may have a ResolvableType which has been resolved before...
 		ResolvableType resultType = new ResolvableType(type, typeProvider, variableResolver);
 		ResolvableType cachedType = cache.get(resultType);
 		if (cachedType == null) {
+			// 这个构造方法会进行 resolveClass() 操作
 			cachedType = new ResolvableType(type, typeProvider, variableResolver, resultType.hash);
 			cache.put(cachedType, cachedType);
 		}

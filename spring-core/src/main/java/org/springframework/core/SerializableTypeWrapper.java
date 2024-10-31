@@ -55,6 +55,7 @@ import org.springframework.util.ReflectionUtils;
  */
 final class SerializableTypeWrapper {
 
+	// 支持类型
 	private static final Class<?>[] SUPPORTED_SERIALIZABLE_TYPES = {
 			GenericArrayType.class, ParameterizedType.class, TypeVariable.class, WildcardType.class};
 
@@ -123,6 +124,7 @@ final class SerializableTypeWrapper {
 			if (type.isInstance(providedType)) {
 				ClassLoader classLoader = provider.getClass().getClassLoader();
 				Class<?>[] interfaces = new Class<?>[] {type, SerializableTypeProxy.class, Serializable.class};
+				// 代理
 				InvocationHandler handler = new TypeProxyInvocationHandler(provider);
 				cached = (Type) Proxy.newProxyInstance(classLoader, interfaces, handler);
 				cache.put(providedType, cached);
@@ -147,6 +149,11 @@ final class SerializableTypeWrapper {
 
 	/**
 	 * A {@link Serializable} interface providing access to a {@link Type}.
+	 *
+	 * 实现类
+	 * @see FieldTypeProvider
+	 * @see MethodParameterTypeProvider
+	 * @see MethodInvokeTypeProvider 非参方法
 	 */
 	@SuppressWarnings("serial")
 	interface TypeProvider extends Serializable {
@@ -199,10 +206,13 @@ final class SerializableTypeWrapper {
 					return this.provider;
 			}
 
+			// 方法返回值是Type
 			if (Type.class == method.getReturnType() && ObjectUtils.isEmpty(args)) {
 				return forTypeProvider(new MethodInvokeTypeProvider(this.provider, method, -1));
 			}
+			// 返回值是Type[]
 			else if (Type[].class == method.getReturnType() && ObjectUtils.isEmpty(args)) {
+
 				Object returnValue = ReflectionUtils.invokeMethod(method, this.provider.getType());
 				if (returnValue == null) {
 					return null;
