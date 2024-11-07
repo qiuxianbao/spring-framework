@@ -3,6 +3,11 @@ description = "Spring Beans"
 apply plugin: "groovy"
 apply plugin: "kotlin"
 
+//编译groovy代码时采用 UTF-8
+tasks.withType(GroovyCompile) {
+	groovyOptions.encoding = "UTF-8"
+}
+
 dependencies {
 	api(project(":spring-core"))
 	optional("javax.inject:javax.inject")

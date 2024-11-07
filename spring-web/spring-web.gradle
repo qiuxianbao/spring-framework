@@ -3,6 +3,11 @@ description = "Spring Web"
 apply plugin: "kotlin"
 apply plugin: "kotlinx-serialization"
 
+//编译groovy代码时采用 UTF-8
+tasks.withType(GroovyCompile) {
+	groovyOptions.encoding = "UTF-8"
+}
+
 dependencies {
 	api(project(":spring-beans"))
 	api(project(":spring-core"))
