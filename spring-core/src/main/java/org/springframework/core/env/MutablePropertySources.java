@@ -41,6 +41,8 @@ import org.springframework.lang.Nullable;
  */
 public class MutablePropertySources implements PropertySources {
 
+	// 读多写少场景
+	// 当容器需要被修改的时候，不直接修改当前容器，而是先将当前容器进行 Copy，复制出一个新的容器，然后修改新的容器，完成修改之后，再将原容器的引用指向新的容器
 	private final List<PropertySource<?>> propertySourceList = new CopyOnWriteArrayList<>();
 
 
@@ -115,6 +117,7 @@ public class MutablePropertySources implements PropertySources {
 	public void addLast(PropertySource<?> propertySource) {
 		synchronized (this.propertySourceList) {
 			removeIfPresent(propertySource);
+			// Arrays.copyOf(es, len + 1);
 			this.propertySourceList.add(propertySource);
 		}
 	}

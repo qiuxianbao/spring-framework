@@ -393,7 +393,7 @@ public abstract class AbstractApplicationEventMulticaster
 			ApplicationListener<?> listener, ResolvableType eventType, @Nullable Class<?> sourceType) {
 
 		// 如果listener 实现了 GenericApplicationListener，则调用 listener自身的supportsEventType方法，如果自身没有supportsSourceType，则调用接口中的default方法
-		// 其他的通过适配器处理
+		// 其他的通过适配器处理，原理就是判断类的泛型是不是父类（子类的事件都感兴趣）
 		GenericApplicationListener smartListener = (listener instanceof GenericApplicationListener ?
 				(GenericApplicationListener) listener : new GenericApplicationListenerAdapter(listener));
 		return (smartListener.supportsEventType(eventType) && smartListener.supportsSourceType(sourceType));

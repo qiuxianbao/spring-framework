@@ -135,6 +135,7 @@ public abstract class PropertySource<T> {
 	 */
 	@Override
 	public boolean equals(@Nullable Object other) {
+		// 都是 PropertySource 的子类，名称相同就认为是一样的
 		return (this == other || (other instanceof PropertySource &&
 				ObjectUtils.nullSafeEquals(getName(), ((PropertySource<?>) other).getName())));
 	}
@@ -192,6 +193,9 @@ public abstract class PropertySource<T> {
 
 
 	/**
+	 * 存根占位
+	 * 保证属性源的顺序
+	 *
 	 * {@code PropertySource} to be used as a placeholder in cases where an actual
 	 * property source cannot be eagerly initialized at application context
 	 * creation time.  For example, a {@code ServletContext}-based property source

@@ -62,6 +62,7 @@ public class StandardEnvironment extends AbstractEnvironment {
 
 
 	/**
+	 * 调用抽象类的构造方法
 	 * Create a new {@code StandardEnvironment} instance with a default
 	 * {@link MutablePropertySources} instance.
 	 */
@@ -94,8 +95,10 @@ public class StandardEnvironment extends AbstractEnvironment {
 	 */
 	@Override
 	protected void customizePropertySources(MutablePropertySources propertySources) {
+		// System.getProperties()
 		propertySources.addLast(
 				new PropertiesPropertySource(SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME, getSystemProperties()));
+		// System.getenv()
 		propertySources.addLast(
 				new SystemEnvironmentPropertySource(SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, getSystemEnvironment()));
 	}

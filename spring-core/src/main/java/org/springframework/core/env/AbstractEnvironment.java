@@ -121,6 +121,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * @see #customizePropertySources(MutablePropertySources)
 	 */
 	public AbstractEnvironment() {
+		// 构造方法
 		this(new MutablePropertySources());
 	}
 
@@ -136,7 +137,17 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 */
 	protected AbstractEnvironment(MutablePropertySources propertySources) {
 		this.propertySources = propertySources;
+		/**
+		 * 创建属性转换器
+		 * 子类重载
+		 * {@link org.springframework.boot.ApplicationServletEnvironment#createPropertyResolver(MutablePropertySources)}
+		 */
 		this.propertyResolver = createPropertyResolver(propertySources);
+
+		/**
+		 * 给 MutablePropertySources 中的 propertySourceList赋值，子类重载：子类再调用父类，依次添加
+		 * @see org.springframework.core.env.MutablePropertySources#propertySourceList
+		 */
 		customizePropertySources(propertySources);
 	}
 
@@ -227,6 +238,10 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * </pre>
 	 *
 	 * <h2>A warning about instance variable access</h2>
+	 *
+	 * 不要在子类的该方法中访问子类成员变量，因为该方法是构造方法调用的（一些成员变量可能还没有进行初始化）
+	 * 如果要操作，就在子类的构造方法中操作
+	 *
 	 * <p>Instance variables declared in subclasses and having default initial values should
 	 * <em>not</em> be accessed from within this method. Due to Java object creation
 	 * lifecycle constraints, any initial value will not yet be assigned when this

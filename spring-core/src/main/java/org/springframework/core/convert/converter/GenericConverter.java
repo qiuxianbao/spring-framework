@@ -105,6 +105,7 @@ public interface GenericConverter {
 				return false;
 			}
 			ConvertiblePair otherPair = (ConvertiblePair) other;
+			// 源相同 且 目标相同
 			return (this.sourceType == otherPair.sourceType && this.targetType == otherPair.targetType);
 		}
 

@@ -83,6 +83,7 @@ public class JndiLocatorDelegate extends JndiLocatorSupport {
 	 * {@code false} if not
 	 */
 	public static boolean isDefaultJndiEnvironmentAvailable() {
+		// false
 		if (shouldIgnoreDefaultJndiEnvironment) {
 			return false;
 		}
@@ -91,6 +92,7 @@ public class JndiLocatorDelegate extends JndiLocatorSupport {
 			return true;
 		}
 		catch (Throwable ex) {
+			// Need to specify class name in environment or system property, or in an application resource file: java.naming.factory.initial
 			return false;
 		}
 	}

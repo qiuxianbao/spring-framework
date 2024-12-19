@@ -58,6 +58,10 @@ public final class SpringProperties {
 
 	static {
 		try {
+			/**
+			 * 1.通过类加载器加载到文件
+			 * 2.读取文件流装入到属性文件中
+			 */
 			ClassLoader cl = SpringProperties.class.getClassLoader();
 			URL url = (cl != null ? cl.getResource(PROPERTIES_RESOURCE_LOCATION) :
 					ClassLoader.getSystemResource(PROPERTIES_RESOURCE_LOCATION));
@@ -100,9 +104,11 @@ public final class SpringProperties {
 	 */
 	@Nullable
 	public static String getProperty(String key) {
+		// localProperties 在静态代码块中通过类加载器加载spring.properties文件
 		String value = localProperties.getProperty(key);
 		if (value == null) {
 			try {
+				// 从VM中取
 				value = System.getProperty(key);
 			}
 			catch (Throwable ex) {
